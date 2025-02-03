@@ -44,18 +44,16 @@ Use the plugin [Schema-ast](https://the-guild.dev/graphql/codegen/plugins/other/
 
 ```json
 {
-  //...
-  generates: {
-    './schema.graphql': {
-      plugins: [
-        'schema-ast'
+  "generates": {
+    "./schema.graphql": {
+      "plugins": [
+        "schema-ast"
       ],
-      config: {
-        includeDirectives: true
+      "config": {
+        "includeDirectives": true
       }
     }
   }
-  //...
 }
 ```
 
