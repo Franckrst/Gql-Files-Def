@@ -1,6 +1,6 @@
 {
   "name": "gql-files-def",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This npm Codegen plugin automatically generates TypeScript definition files (.d.ts) for GraphQL files (.gql), making it easier to integrate and ensure strict typing in TypeScript applications.",
   "author": "Franckrst",
   "license": "MIT",
