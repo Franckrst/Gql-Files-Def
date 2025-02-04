@@ -41,5 +41,10 @@ ${doc.def.map(({ name, key }) => `export const ${key}: TypedDocumentNode<${name}
 `)
   }
 
-  return `// All type declarations are next to your query files `
+  return `// All type declarations are next to your query files 
+// Helper
+type NonUndefined<T> = T extends undefined ? never : T;
+export type GqlVariableOf<T extends { __apiType ?:(...args: any) => any}> = Parameters<NonUndefined<T['__apiType']>>[0];
+export type GqlResponseOf<T extends { __apiType ?:(...args: any) => any}> = ReturnType<NonUndefined<T['__apiType']>>;
+`
 }
