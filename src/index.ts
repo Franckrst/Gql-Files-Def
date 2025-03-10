@@ -4,13 +4,13 @@ import { writeFileSync } from 'node:fs'
 import { relative } from 'node:path'
 import * as process from 'node:process'
 
-interface DocRsult { location: string, path: string, def: { key: string, name: string }[] }
+interface DocRsult { location: string, path: string, def: { key: string, name: string,operation: string }[] }
 
 export const plugin: PluginFunction = (schema, documents, config, info) => {
   if (!info?.outputFile) {
     throw new Error('Need output file')
   }
-  const docResult = documents.reduce((acc, doc) => {
+  const docResult: DocRsult[] = documents.reduce((acc, doc) => {
     return [
       ...acc,
       {
@@ -18,16 +18,17 @@ export const plugin: PluginFunction = (schema, documents, config, info) => {
         path: relative(process.cwd(), doc.location || ''),
         def: (doc.document?.definitions as OperationDefinitionNode[])
           .filter(d => !!d?.name?.value)
-          .map(d => d?.name?.value || '')
-          .reduce((subAcc, name) => {
+          .map(d => [d?.name?.value || '',d?.operation])
+          .reduce((subAcc, [name,operation]) => {
             return [
               ...subAcc,
               {
                 key: name,
+                operation : String(operation).charAt(0).toUpperCase() + String(operation).slice(1),
                 name: String(name).charAt(0).toUpperCase() + String(name).slice(1),
               },
             ]
-          }, [] as { key: string, name: string }[]) || [],
+          }, [] as { key: string, name: string, operation: string }[]) || [],
       },
     ]
   }, [] as DocRsult[])
@@ -36,8 +37,8 @@ export const plugin: PluginFunction = (schema, documents, config, info) => {
     const inportPath = relative(doc.location.split('/').slice(0, -1).join('/'), info.outputFile)
     writeFileSync(`${doc.location}.d.ts`, `
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import type {${doc.def.map(({ name }) => `${name}Query, ${name}QueryVariables`).join(', ')}} from "${inportPath}";
-${doc.def.map(({ name, key }) => `export const ${key}: TypedDocumentNode<${name}Query, ${name}QueryVariables>;`).join('\n')}
+import type {${doc.def.map(({ name, operation }) => `${name}${operation}, ${name}${operation}Variables`).join(', ')}} from "${inportPath}";
+${doc.def.map(({ name, key,operation }) => `export const ${key}: TypedDocumentNode<${name}${operation}, ${name}${operation}Variables>;`).join('\n')}
 `)
   }
 
